@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(brew install *)",
+      "Bash(python3 -c \"import Quartz; print\\('pyobjc ok'\\)\")",
+      "Read(//private/tmp/**)",
+      "Bash(python3 -)",
+      "Read(//tmp/**)",
+      "Bash(rm -f icon-512.png icon-192.png apple-touch-icon.png)",
+      "Bash(qlmanage -t -s 512 favicon.svg -o .)",
+      "Bash(mv favicon.svg.png icon-512.png)",
+      "Bash(sips -z 192 192 icon-512.png --out icon-192.png)",
+      "Bash(sips -z 180 180 icon-512.png --out apple-touch-icon.png)",
+      "Bash(npm test *)",
+      "Bash(node --test tests/)",
+      "Bash(node --test tests/recurrence.test.js)",
+      "Bash(npm ls *)",
+      "Bash(npm i *)"
+    ]
+  }
+}

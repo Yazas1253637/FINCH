@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="116" fill="#14120f"/>
+  <!-- Ledger coin mark -->
+  <circle cx="256" cy="256" r="150" fill="#178a4c"/>
+  <circle cx="256" cy="256" r="86" fill="#14120f"/>
+  <rect x="244" y="118" width="24" height="276" rx="12" fill="#14120f" transform="rotate(45 256 256)"/>
+  <circle cx="256" cy="256" r="44" fill="#2fb56e"/>
+</svg>

@@ -1,0 +1,205 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Poolsuite-style type: monospace body, Times serif display, pixel accents */
+  --font-sans: "Space Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-display: "Times New Roman", Times, Georgia, serif;
+  --font-pixel: "Silkscreen", "Space Mono", monospace;
+
+  /* Warm paper / peach field, white cards, hard black ink */
+  --color-paper: #f2e8dd;
+  --color-paper-raised: #ffffff;
+  --color-ink: #1c1a17;
+  --color-ink-soft: #4f4a42;
+  --color-ink-faint: #8f887b;
+  --color-line: #cdbfae;        /* soft tan for dividers / dotted legends */
+
+  /* Dark tokens kept defined but unused (theme is light-only) */
+  --color-night: #1c1a17;
+  --color-night-raised: #262320;
+  --color-snow: #f2e8dd;
+  --color-snow-soft: #b3a99a;
+  --color-snow-faint: #807868;
+  --color-night-line: #3a352e;
+
+  /* Mint green = data-viz + "on" state (honors the green-for-charts rule) */
+  --color-accent: #5bb98c;
+  --color-accent-deep: #2f8f63;
+  --color-accent-bright: #6fcf9f;
+  --color-accent-wash: #d8efe2;
+  --color-accent-wash-dark: #20322a;
+
+  /* Poolsuite pink = primary action fills */
+  --color-pink: #f1bcc2;
+  --color-pink-deep: #e79aa3;
+  --color-pink-wash: #f9e2e5;
+
+  /* Ratings */
+  --color-ok: #2f8f63;
+  --color-ok-bright: #6fcf9f;
+  --color-warn: #d39a3c;
+  --color-over: #c5564b;
+  --color-over-bright: #dd6f63;
+
+  --radius-card: 0.625rem;
+
+  /* Hard retro offset shadow — the beveled-sticker look */
+  --shadow-card: 2px 2px 0 0 #1c1a17;
+  --shadow-card-dark: 2px 2px 0 0 #000000;
+}
+
+html {
+  font-family: var(--font-sans);
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  /* iOS safe areas */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Every amount uses tabular figures */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Headline money figures: Times serif, like a Poolsuite membership card name */
+.figure-serif {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Pixel/stamped accent text (wordmark, tiny labels) */
+.text-pixel {
+  font-family: var(--font-pixel);
+}
+
+/* Hard black border helper used by the retro chrome */
+.hard-border { border: 1.5px solid var(--color-ink); }
+
+/* CRT scanlines overlay — subtle horizontal lines on card surfaces */
+.crt { position: relative; }
+.crt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(28, 26, 23, 0.035) 0px,
+    rgba(28, 26, 23, 0.035) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* Dot-matrix LCD readout (the hero total panel) */
+.lcd-panel {
+  background-color: #13130d;
+  background-image: radial-gradient(rgba(111, 207, 159, 0.14) 0.9px, transparent 1.1px);
+  background-size: 4px 4px;
+  color: #74d3a3;
+}
+.lcd-glow {
+  text-shadow: 0 0 7px rgba(111, 207, 159, 0.55), 0 0 2px rgba(140, 230, 185, 0.9);
+}
+.lcd-dim { color: #4f9c78; }
+
+/* Scanlines inside the LCD, finer + greenish */
+.lcd-scan::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.18) 0px,
+    rgba(0, 0, 0, 0.18) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* Subtle fade/rise used on tab and view switches */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-rise {
+  animation: rise-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Donut entrance: gentle scale + rotate settle */
+@keyframes donut-in {
+  from { opacity: 0; transform: scale(0.92) rotate(-8deg); }
+  to   { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+.animate-donut {
+  animation: donut-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* CRT power-on: a bright line snaps wide, then blooms to full height */
+@keyframes crt-power-on {
+  0%   { transform: scaleX(0) scaleY(0.01); opacity: 0; filter: brightness(6); }
+  18%  { transform: scaleX(1) scaleY(0.01); opacity: 1; filter: brightness(6); }
+  46%  { transform: scaleX(1) scaleY(1);    filter: brightness(2.2); }
+  100% { transform: scaleX(1) scaleY(1);    filter: brightness(1); }
+}
+.animate-crt-on { animation: crt-power-on 0.85s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Content fades up after the tube warms */
+@keyframes boot-content {
+  0%, 38% { opacity: 0; transform: translateY(4px); }
+  100%    { opacity: 1; transform: translateY(0); }
+}
+.animate-boot-content { animation: boot-content 1.1s ease-out both; }
+
+/* A scanline sweeping down the boot panel */
+@keyframes boot-sweep {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(900%); }
+}
+.animate-boot-sweep { animation: boot-sweep 1.1s linear infinite; }
+
+@keyframes blink { 50% { opacity: 0; } }
+.animate-blink { animation: blink 0.9s step-end infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise, .animate-donut, .animate-crt-on, .animate-boot-content,
+  .animate-boot-sweep, .animate-blink { animation: none; }
+}
+
+/* Scrollbars: invisible track, hairline thumb on hover */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+*:hover {
+  scrollbar-color: color-mix(in srgb, var(--color-ink-faint) 35%, transparent) transparent;
+}
+::-webkit-scrollbar { width: 10px; height: 10px; background: transparent; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 99px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+*:hover::-webkit-scrollbar-thumb, ::-webkit-scrollbar-thumb:active {
+  background: color-mix(in srgb, var(--color-ink-faint) 40%, transparent);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
