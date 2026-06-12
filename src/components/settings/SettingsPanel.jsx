@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { useStore } from '../../store/StoreProvider.jsx'
 import { exportBackup, parseBackup, pickBackupFile } from '../../utils/backup.js'
 import { exportExpensesCSV } from '../../utils/csvExport.js'
-import { isUsingFallback } from '../../db/database.js'
 import { Card, CardLabel } from '../layout/Card.jsx'
 import { CategoryManager } from '../categories/CategoryManager.jsx'
 import { ImportWizard } from '../importer/ImportWizard.jsx'
+import { supabase } from '../../db/supabase.js'
 
 /** Beveled retro button — hard border, offset shadow, depresses on press. */
 const retroBtn = `w-full rounded-[6px] border-[1.5px] border-ink px-5 py-2.5 text-sm font-bold
@@ -71,8 +71,8 @@ export function SettingsPanel({ open, onClose }) {
         <Card className="mb-4">
           <CardLabel>Backup</CardLabel>
           <p className="mb-5 text-sm leading-relaxed text-ink-soft dark:text-snow-soft">
-            All data lives in this browser{isUsingFallback() ? ' (localStorage fallback)' : ' (IndexedDB)'}.
-            Export a JSON file now and then — it is your safety net if browser data is ever cleared.
+            Export a JSON snapshot of your data. Useful if you ever want to migrate or keep
+            a local copy.
           </p>
           <div className="flex flex-col gap-2.5">
             <button onClick={handleExport} className={`${retroBtn} bg-accent`}>
@@ -108,12 +108,22 @@ export function SettingsPanel({ open, onClose }) {
           <CategoryManager />
         </Card>
 
-        <Card>
+        <Card className="mb-4">
           <CardLabel>About</CardLabel>
           <p className="text-sm leading-relaxed text-ink-soft dark:text-snow-soft">
-            Finch keeps every expense on your device. No account, no server, no tracking.
-            Install it from your browser&rsquo;s share menu — &ldquo;Add to Home Screen&rdquo; on iOS.
+            Finch syncs your data to Supabase — accessible from any device.
+            Install from your browser&rsquo;s share menu — &ldquo;Add to Home Screen&rdquo; on iOS.
           </p>
+        </Card>
+
+        <Card>
+          <CardLabel>Account</CardLabel>
+          <button
+            onClick={() => supabase.auth.signOut()}
+            className={`${retroBtn} bg-paper-raised`}
+          >
+            Sign out
+          </button>
         </Card>
       </div>
       {importing && <ImportWizard onClose={() => setImporting(false)} />}

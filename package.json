@@ -15,9 +15,15 @@
   "build": {
     "appId": "nl.yasas.finch",
     "productName": "Finch",
-    "directories": { "output": "release" },
+    "directories": {
+      "output": "release"
+    },
     "electronDist": "node_modules/electron/dist",
-    "files": ["dist/**/*", "electron/**/*", "package.json"],
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
     "mac": {
       "target": "dir",
       "icon": "build/icon.icns",
@@ -26,6 +32,7 @@
     }
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.1",
     "idb": "^8.0.2",
     "papaparse": "^5.4.1",
     "react": "^18.3.1",

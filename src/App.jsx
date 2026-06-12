@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
-import { useStore } from './store/StoreProvider.jsx'
+import { useAuth } from './auth/AuthProvider.jsx'
+import { SignIn } from './auth/SignIn.jsx'
+import { StoreProvider, useStore } from './store/StoreProvider.jsx'
 import { useMonthData, useEarliestMonth } from './hooks/useMonthData.js'
 import { currentMonthKey, monthLabel, monthShortLabel, addMonths } from './utils/dates.js'
 import { formatCents } from './utils/money.js'
@@ -18,6 +20,21 @@ import { LcdTotal } from './components/ui/LcdTotal.jsx'
 import { BootScreen } from './components/ui/BootScreen.jsx'
 
 export default function App() {
+  const { session } = useAuth()
+
+  // Auth still resolving → show boot screen
+  if (session === undefined) return <BootScreen />
+  // No session → sign-in
+  if (!session) return <SignIn />
+
+  return (
+    <StoreProvider>
+      <AppInner />
+    </StoreProvider>
+  )
+}
+
+function AppInner() {
   const { state } = useStore()
   const [view, setView] = useState('overview') // overview | trends | subscriptions
   const [month, setMonth] = useState(currentMonthKey())
@@ -25,7 +42,6 @@ export default function App() {
   const [expenseSheet, setExpenseSheet] = useState(null) // null | {expense?}
   const earliestMonth = useEarliestMonth()
 
-  // Hold the boot screen for a minimum beat so the power-on reads as intentional.
   const [bootDone, setBootDone] = useState(false)
   useEffect(() => {
     const t = setTimeout(() => setBootDone(true), 1500)
@@ -35,11 +51,9 @@ export default function App() {
   if (!state.ready || !bootDone) return <BootScreen />
 
   return (
-    
     <div className="mx-auto min-h-dvh max-w-5xl px-4 pb-28 sm:px-8">
       <Header onOpenSettings={() => setSettingsOpen(true)} />
 
-      {/* View switcher — Poolsuite tab strip with pixel icons */}
       <nav className="mt-2 flex gap-1.5" aria-label="Sections">
         {[['overview', 'Overview'], ['trends', 'Trends'], ['subscriptions', 'Subscriptions']].map(([id, label]) => (
           <button
@@ -74,7 +88,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Primary action: always one tap away */}
       <button
         className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-6 z-30 flex h-14 items-center
           gap-2 rounded-[8px] border-[1.5px] border-ink bg-pink pl-5 pr-6 text-ink shadow-[3px_3px_0_0_var(--color-ink)]
@@ -107,7 +120,6 @@ function MonthView({ monthKey, onEdit }) {
 
   return (
     <main className="animate-rise grid grid-cols-1 gap-4 pt-1 md:grid-cols-6">
-      {/* Headline total — Poolsuite LCD readout */}
       <LcdTotal
         span="md:col-span-3"
         monthKey={monthKey}
@@ -135,7 +147,6 @@ function MonthView({ monthKey, onEdit }) {
         <GoalsCard monthKey={monthKey} />
       </Card>
 
-
       <Card span="md:col-span-6">
         <CardLabel>This month&rsquo;s entries</CardLabel>
         <ExpenseList entries={visibleEntries} onEdit={onEdit} />
@@ -144,7 +155,6 @@ function MonthView({ monthKey, onEdit }) {
   )
 }
 
-/** Chunky pixel-art glyphs for the section tabs. currentColor follows the tab. */
 function PixelIcon({ name }) {
   const common = { className: 'h-3 w-3 shrink-0', fill: 'currentColor', shapeRendering: 'crispEdges' }
   if (name === 'trends') {
@@ -164,7 +174,6 @@ function PixelIcon({ name }) {
       </svg>
     )
   }
-  // overview — 2x2 window
   return (
     <svg viewBox="0 0 9 9" {...common}>
       <rect x="0" y="0" width="4" height="4" />
