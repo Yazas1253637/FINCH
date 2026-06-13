@@ -3,32 +3,61 @@ import { supabase } from '../db/supabase.js'
 
 const AuthContext = createContext(null)
 
+const AUTH_TIMEOUT_MS = 10_000
+
 export function AuthProvider({ children }) {
-  // undefined = still checking, null = no session, object = authenticated
+  // undefined = resolving, null = no session, object = authenticated
   const [session, setSession] = useState(undefined)
+  const [authError, setAuthError] = useState(null)
 
   useEffect(() => {
-    // PKCE callback: magic link redirects to ?code=xxx — exchange it for a session.
-    const params = new URLSearchParams(window.location.search)
-    const code = params.get('code')
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
-        if (!error) {
-          // Remove ?code= from URL so reload doesn't re-attempt exchange.
-          window.history.replaceState({}, '', window.location.pathname)
-        }
-      })
+    let resolved = false
+
+    const timeout = setTimeout(() => {
+      if (!resolved) {
+        console.error('[auth] timed out waiting for session')
+        resolved = true
+        setAuthError('Sign-in timed out. Please try again.')
+        setSession(null)
+      }
+    }, AUTH_TIMEOUT_MS)
+
+    const resolve = (s) => {
+      if (!resolved) {
+        resolved = true
+        clearTimeout(timeout)
+        setSession(s)
+      }
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => setSession(session))
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('[auth] getSession error:', error)
+        setAuthError(error.message)
+      }
+      resolve(session)
+    })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('[auth] event:', event, session?.user?.email ?? 'no user')
+      // Always update session on any auth event so token refresh and
+      // sign-in from the hash (#access_token=…) are picked up immediately.
+      resolved = true
+      clearTimeout(timeout)
       setSession(session)
     })
-    return () => subscription.unsubscribe()
+
+    return () => {
+      clearTimeout(timeout)
+      subscription.unsubscribe()
+    }
   }, [])
 
-  return <AuthContext.Provider value={{ session }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ session, authError }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth() {

@@ -20,11 +20,10 @@ import { LcdTotal } from './components/ui/LcdTotal.jsx'
 import { BootScreen } from './components/ui/BootScreen.jsx'
 
 export default function App() {
-  const { session } = useAuth()
+  const { session, authError } = useAuth()
 
-  // Auth still resolving → show boot screen
   if (session === undefined) return <BootScreen />
-  // No session → sign-in
+  if (authError && !session) return <AuthErrorScreen message={authError} />
   if (!session) return <SignIn />
 
   return (
@@ -108,6 +107,22 @@ function AppInner() {
         />
       )}
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+    </div>
+  )
+}
+
+function AuthErrorScreen({ message }) {
+  return (
+    <div className="flex min-h-dvh flex-col items-center justify-center gap-5 bg-paper px-6 text-center">
+      <p className="font-mono text-sm text-ink">{message}</p>
+      <button
+        onClick={() => { window.location.href = '/' }}
+        className="rounded-[6px] border-[1.5px] border-ink bg-pink px-5 py-2.5
+          font-mono text-sm font-bold uppercase tracking-[0.06em] text-ink shadow-card
+          transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+      >
+        Try again
+      </button>
     </div>
   )
 }
